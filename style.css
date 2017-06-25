@@ -1,0 +1,68 @@
+body {
+}
+
+#score{
+	margin: 100px auto 20px auto;
+	width: 60px;
+	height: 30px;
+	background-color: #2c3a33;
+	font-weight: bold;
+	color:#550000;
+	border-radius: 10px;
+	border: 2px solid black;
+}
+
+#contents{
+	width:700px;
+	height: 200px;
+	margin: 0 auto;
+	background-color: #444;
+}
+
+.color{
+	width:20%;
+	height: 90%;
+	display:inline-block;
+	margin: 10px;
+}
+
+#green{
+	background-color:#00aa00;
+}
+
+#red{
+	background-color:#aa0000;
+}
+
+#blue{
+	background-color:#0000aa;
+}
+
+#yellow{
+	background-color: #aaaa00;
+}
+
+#buttons{
+	margin:20px auto 100px autol
+}
+
+#startButton{
+	height:20px;
+	width:20px;
+	border-radius:50%;
+	background-color:#FF0000;
+}
+
+#strictButton{
+	height:20px;
+	width:20px;
+	border-radius:50%;
+	background-color:#cccc00;
+}
+
+#powerButton{
+	height:20px;
+	width:20px;
+	border-radius:50%;
+	background-color:#111;
+}
