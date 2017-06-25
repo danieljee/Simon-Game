@@ -2,38 +2,49 @@ var simon = {
 	level: 1,
 	strict: false,
 	powerOn: false, //If power is off, all other buttons will not work
-	allowUserInput: false,
 	currentSequence: [],
 	userSequence:[],
-	userClickCount:0,
-	togglePower: function(){
+	
+	reset: function(){
+		this.level =1;
+		this.currentSequence = [];
+		this.userSequence= [];
+	},
+	
+	nonStrictReset: function(){
+		this.userSequence =[];
+	},
+	
+	togglePower: function(){	
+		this.strict = false;
 		if (this.powerOn){
-			this.level =1;
-			this.currentSequence = [];
-			this.userClickCount = 0;
-			this.strict = false;
+			this.reset();
+			this.disableButtons();
 			this.powerOn = false;
-			this.allowUserInput = false;
 			this.scoreBoard.style.color = "#550000";
 			this.scoreBoard.innerHTML = "--";
 		} else {
-			this.scoreBoard.style.color = "#ff0000";
 			this.powerOn = true;
+			this.scoreBoard.style.color = "#ff0000";
 		}
 	},
 	
 	startGame: function(){
-		this.level =1;
-		this.userClickCount = 0;
-		this.allowUserInput = false;
-		this.currentSequence = [];
-		if (this.powerOn) this.displayLevel();
-		this.game.nextSequence();
-		this.game.runSequence();
+		if (this.powerOn) {
+			this.reset();
+			this.displayLevel();
+			this.game.nextSequence();
+			this.game.runSequence();
+		}
 	},
 	
 	setStrict: function(){
-		if (this.powerOn)this.strict = !this.strict;;	
+		if (this.powerOn)this.strict = !this.strict;
+		if (this.strict){
+			strictSignal.style.backgroundColor = "#ff0000";
+		} else {
+			strictSignal.style.backgroundColor = "#333";
+		}
 	},
 	
 	displayLevel: function(){
@@ -50,6 +61,7 @@ var simon = {
 		(this.red = document.getElementById("red")).addEventListener("click", this.game.getUserSequence);
 		(this.yellow = document.getElementById("yellow")).addEventListener("click", this.game.getUserSequence);
 		(this.blue = document.getElementById("blue")).addEventListener("click", this.game.getUserSequence);
+		this.strictSignal = document.getElementById("strictSignal");
 		this.disableButtons();
 	},
 	
@@ -76,30 +88,26 @@ simon.game = {
 	}.bind(simon),
 	
 	runSequence: function(){
-		this.userClickCount = 0;
 		this.disableButtons();
 		for(var i=0; i<this.currentSequence.length; i++){
 			if (this.currentSequence[i] == 1){
 				setTimeout(()=>{this.green.style.backgroundColor = "#00ff00";}, i * 1000);
-				setTimeout(()=>{this.green.style.backgroundColor = "#00aa00";}, i * 1000 + 1000);
+				setTimeout(()=>{this.green.style.backgroundColor = "#00aa00";}, i * 1000 + 500);
 			} else if (this.currentSequence[i] == 2){
 				setTimeout(()=>{this.red.style.backgroundColor = "#ff0000";}, i * 1000);
-				setTimeout(()=>{this.red.style.backgroundColor = "#aa0000";}, i * 1000 + 1000);
+				setTimeout(()=>{this.red.style.backgroundColor = "#aa0000";}, i * 1000 + 500);
 			} else if (this.currentSequence[i] ==3){
 				setTimeout(()=>{this.yellow.style.backgroundColor = "#ffff00";}, i * 1000);
-				setTimeout(()=>{this.yellow.style.backgroundColor = "#aaaa00";}, i * 1000 + 1000);
+				setTimeout(()=>{this.yellow.style.backgroundColor = "#aaaa00";}, i * 1000 + 500);
 			} else if (this.currentSequence[i] ==4){
 				setTimeout(()=>{this.blue.style.backgroundColor = "#0000ff";}, i * 1000);
-				setTimeout(()=>{this.blue.style.backgroundColor = "#0000cc";}, i * 1000 + 1000);
-			}		
+				setTimeout(()=>{this.blue.style.backgroundColor = "#0000cc";}, i * 1000 + 500);
+			}
 		}
-		this.allowUserInput = true;
-		this.enableButtons();
+		setTimeout(()=>{this.enableButtons();}, this.currentSequence.length * 1000);
 	}.bind(simon),
 	
 	getUserSequence: function(){
-		if (simon.allowUserInput){
-			simon.userClickCount++;
 			if (this.id == "green"){
 				simon.userSequence.push(1);
 			} else if (this.id == "red"){
@@ -107,24 +115,34 @@ simon.game = {
 			} else if (this.id == "yellow"){
 				simon.userSequence.push(3);
 			} else if (this.id == "blue") {
-				simon.userSequnce.push(4);
+				simon.userSequence.push(4);
 			}
-		}
-		simon.game.testIfMatches().bind(simon);
+		simon.game.testIfMatches();
 	},
 	
-	testIfMatches: function(){
-		if (this.currentSequence[this.userClickCount-1] == this.userSequence[this.userClickCount-1]){
-			
+	testIfMatches: function(){		
+		if (this.currentSequence[this.userSequence.length-1] == this.userSequence[this.userSequence.length-1]){
+			if (this.userSequence.length == this.currentSequence.length){ //if user has successfully matched the pattern
+				console.log("Successfully matched all");
+				this.disableButtons();
+				this.level++;
+				this.displayLevel();
+				this.nonStrictReset();
+				this.game.nextSequence();
+				setTimeout(()=>{this.game.runSequence();}, 1000);
+			}
 		} else {//if user gets it wrong, and if not in strict mode, run the pattern again and let user enter the sequence. 
 					//If in the strict mode, reset the score and start a new sequence. 
-			this.allowUserInput = false;
+			console.log("failed to match");
+			this.disableButtons();
+			if (this.strict){
+				setTimeout(()=>{this.startGame();}, 1000);
+			} else {		
+				this.nonStrictReset();
+				setTimeout(()=>{this.game.runSequence();}, 1000);
+			}
 		}
-		
-		if (this.userClickCount == this.currentSequence.length && this.allowUserInput){ //if user has successfully matched the pattern
-			this.allowUserInput = false;	
-		}
-	}
+	}.bind(simon)
 }
 
 document.addEventListener("DOMContentLoaded", function(){
